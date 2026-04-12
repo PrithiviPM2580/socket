@@ -9,18 +9,19 @@ const App = () => {
   const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
-    socket.on("message", (data: string) => {
-      setMessages((prev) => [...prev, data]);
+    socket.on("receive_message", (data: { username: string; text: string }) => {
+      console.log("Received message:", data);
+      setMessages((prev) => [...prev, `${data.username}: ${data.text}`]);
     });
 
     return () => {
-      socket.off("message");
+      socket.off("receive_message");
     };
   }, []);
 
   function sendMessage() {
     if (!message || !username) return;
-    socket.emit("message", { username, text: message });
+    socket.emit("send_message", { username, text: message });
     setMessage("");
   }
   return (
@@ -37,13 +38,19 @@ const App = () => {
 
         <div className="flex-1 overflow-y-auto px-6 py-5 sm:px-8">
           <div className="space-y-3">
-            {messages.map((msg, index) => (
-              <div key={index} className="flex justify-start">
-                <p className="max-w-[85%] rounded-2xl rounded-bl-md border border-white/10 bg-slate-900/80 px-4 py-3 text-sm leading-6 text-slate-100 shadow-lg shadow-black/10 sm:max-w-[70%]">
-                  {msg}
-                </p>
-              </div>
-            ))}
+            {messages.map((msg, index) => {
+              const ind = index % 2 === 0;
+              return (
+                <div
+                  key={index}
+                  className={ind ? "flex justify-start" : "flex justify-end"}
+                >
+                  <p className="max-w-[85%] rounded-2xl rounded-bl-md border border-white/10 bg-slate-900/80 px-4 py-3 text-sm leading-6 text-slate-100 shadow-lg shadow-black/10 sm:max-w-[70%]">
+                    {msg}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
         <div className="border-t border-white/10 bg-slate-950/80 p-4 sm:p-5">
