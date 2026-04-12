@@ -15,7 +15,9 @@ app.use(cors());
 app.use(express.json());
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  socket.on("message", (data: string) => {
+    console.log("message:", JSON.stringify(data));
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
