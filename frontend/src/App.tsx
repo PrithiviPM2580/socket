@@ -9,6 +9,12 @@ const App = () => {
   const [room, setRoom] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
 
+  const joinRoom = () => {
+    if (room !== "") {
+      socket.emit("join_room", room);
+    }
+  };
+
   useEffect(() => {
     socket.on("receive_message", (data: { username: string; text: string }) => {
       console.log("Received message:", data);
@@ -21,8 +27,8 @@ const App = () => {
   }, []);
 
   function sendMessage() {
-    if (!message || !username) return;
-    socket.emit("send_message", { username, text: message });
+    if (!message || !username || !room) return;
+    socket.emit("send_message", { username, text: message, room });
     setMessage("");
   }
   return (
@@ -38,20 +44,18 @@ const App = () => {
             </h1>
           </div>
           <div className="border-t border-white/10 bg-slate-950/80 p-4 sm:p-5">
-            <div className="flex gap-3 rounded-3xl border border-white/10 bg-white/5 p-3">
-              <input
-                type="text"
-                value={room}
-                onChange={(e) => setRoom(e.target.value)}
-                className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20"
-              />
-              <button
-                onClick={sendMessage}
-                className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-200 active:scale-[0.99]"
-              >
-                Join Room
-              </button>
-            </div>
+            <input
+              type="text"
+              value={room}
+              onChange={(e) => setRoom(e.target.value)}
+              className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-slate-900/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20"
+            />
+            <button
+              onClick={joinRoom}
+              className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-200 active:scale-[0.99]"
+            >
+              Join Room
+            </button>
           </div>
         </div>
 
