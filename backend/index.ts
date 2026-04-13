@@ -15,9 +15,17 @@ app.use(cors());
 app.use(express.json());
 
 io.on("connection", (socket) => {
-  socket.on("send_message", (data: { username: string; text: string }) => {
-    io.emit("receive_message", data);
+  socket.on("join_room", (room) => {
+    socket.join(room);
+    console.log(`User ${socket.id} joined room ${room}`);
   });
+
+  socket.on(
+    "send_message",
+    (data: { username: string; text: string; room: string }) => {
+      io.to(data.room).emit("receive_message", data);
+    },
+  );
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
